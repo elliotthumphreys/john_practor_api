@@ -2,7 +2,7 @@
 const router = express.Router();
 const userService = require('./user.service');
 
-// routes
+router.get('/authenticate-token', authenticateToken)
 router.post('/authenticate', authenticate);
 router.post('/register', register);
 router.get('/', getAll);
@@ -12,6 +12,12 @@ router.put('/:id', update);
 router.delete('/:id', _delete);
 
 module.exports = router;
+
+function authenticateToken(req, res, next) {
+    res.json({
+        authenticated: true
+    })
+}
 
 function authenticate(req, res, next) {
     userService.authenticate(req.body)
