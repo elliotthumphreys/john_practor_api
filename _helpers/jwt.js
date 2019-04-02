@@ -13,7 +13,8 @@ function jwt() {
             /\/images\//i,
             '/hats/:id',
             '/content',
-            '/hats'
+            '/hats',
+            '/users/register'
         ]
     });
 }
