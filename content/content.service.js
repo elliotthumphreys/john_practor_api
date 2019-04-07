@@ -72,7 +72,7 @@ const update = async (files, fields) => {
     let page = oldContent.data.pages.find(_ => _.slug === fields.slug)
 
     for (let key in fields) {
-        if (key !== 'slug') {
+        if (key !== 'slug' && key !== 'navigation') {
             page.data[key][0] = fields[key]
         }
     }
@@ -107,7 +107,7 @@ const update = async (files, fields) => {
         return _
     })
 
-    const contentProps = { data: { pages, navigation: oldContent.data.navigation } }
+    const contentProps = { data: { pages, navigation: [...JSON.parse(fields['navigation'])] } }
 
     Object.assign(oldContent, contentProps)
 
