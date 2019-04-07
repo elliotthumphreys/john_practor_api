@@ -12,7 +12,7 @@ const getAll = (request, response, next) => {
 
 const add = (request, response, next) => {
     service
-        .add(request.files, request.body)
+        .add()
         .then(() => response.json({message: 'success'}))
         .catch(error => next(error))
 }
@@ -25,7 +25,7 @@ const update = (request, response, next) => {
 }
 
 router.get('/', getAll)
-router.post('/add', helper.anyFileUploadHandler, add)
+router.post('/add', add)
 router.put('/', helper.anyFileUploadHandler, update)
 
 module.exports = router 

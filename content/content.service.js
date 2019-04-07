@@ -6,61 +6,53 @@ const getAll = async () => {
     return await Content.find()
 }
 
-const add = async (files, fields) => {
+const add = async () => {
     let content = new Content()
-
-    // let jsonData = {}
-
-    // for (fieldName in fields) {
-    //     jsonData[fieldName] = fields[fieldName]
-    // }
-
-    // jsonData.images = files.map((image, _) => ({
-    //     id: image.fieldname,
-    //     path: image.filename
-    // }))
 
     content.data = {
         "pages": [
             {
-                "name": "Collection",
-                "slug": "products-collection",
-                "data": {
-                    "body": ["some-typescript-body-data", "textarea"],
-                    "images": [
-                        {
-                            "id": "coverImage",
-                            "path": "1ffa06a6-04c7-41b1-b438-424c354c457f.png"
-                        }
-                    ],
-                    "page-specific-field-1": ["example field", "text"],
-                    "page-specific-field-2": ["example field", "textarea"]
-                }
-            },
-            {
                 "name": "Home",
                 "slug": "home",
                 "data": {
-                    "header": ["some-typescript-body-data", "text"],
+                    "header-top": ["", "text"],
+                    "header-bottom": ["", "text"],
                     "images": [
                         {
                             "id": "coverImage",
-                            "path": "1ffa06a6-04c7-41b1-b438-424c354c457f.png"
+                            "path": ""
                         }
                     ],
                 }
-            }
-        ],
-        "navigation": [
-            {
-                "name": "Home",
-                "slug": "home"
             },
             {
-                "name": "Weddings",
-                "slug": "collection?category=wedding"
+                "name": "Collection",
+                "slug": "collection",
+                "data": {}
+            },
+            {
+                "name": "About",
+                "slug": "about",
+                "data": {
+                    "body": ["", "textarea"]
+                }
+            },
+            {
+                "name": "Contact",
+                "slug": "contact",
+                "data": {
+                    "body": ["", "textarea"]
+                }
+            },
+            {
+                "name": "Terms",
+                "slug": "terms",
+                "data": {
+                    "body": ["", "textarea"]
+                }
             }
-        ]
+        ],
+        "navigation": []
     }
 
     await content.save()
