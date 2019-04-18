@@ -15,6 +15,18 @@ const schema = new mongoose.Schema({
     ]
 })
 
+const index = { 
+    description: 'text',
+    title: 'text',
+    price: 'text',
+    category: 'text',
+    credit: 'text',
+    dateCreated: 'text',
+    'images.path': 1,
+    'images.description': 1
+ };
+schema.index(index);
+
 schema.set('toJSON', { virtuals: true })
 
 module.exports = mongoose.model('Hat', schema)

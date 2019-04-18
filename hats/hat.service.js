@@ -9,8 +9,7 @@ const add = async (files, fields) => {
     hat.images = files.map((image, _) => ({
         path: image.filename,
         description: `Image number ${_}`
-    })
-    )
+    }))
 
     for (fieldName in fields) {
         hat[fieldName] = fields[fieldName]

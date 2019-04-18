@@ -69,28 +69,30 @@ const update = async (files, fields) => {
         }
     }
 
-    let replacedImages = []
-    files.forEach(file => {
-        replacedImages = [...replacedImages, ...page.data.images.filter(image => {
-            if (image.id === file.fieldname) {
-                fs.unlink(`uploads/${image.path}`, () => { })
-                return true
-            } else {
-                return false
-            }
-        })]
-    })
+    if(page.data.hasOwnProperty('images')){
+        let replacedImages = []
+        files.forEach(file => {
+            replacedImages = [...replacedImages, ...page.data.images.filter(image => {
+                if (image.id === file.fieldname) {
+                    fs.unlink(`uploads/${image.path}`, () => { })
+                    return true
+                } else {
+                    return false
+                }
+            })]
+        })
 
-    page.data.images = page.data.images.map(image => {
-        if (replacedImages.map(_ => _.id).includes(image.id)) {
-            return {
-                id: image.id,
-                path: files.filter(_ => _.fieldname === image.id)[0].filename
+        page.data.images = page.data.images.map(image => {
+            if (replacedImages.map(_ => _.id).includes(image.id)) {
+                return {
+                    id: image.id,
+                    path: files.filter(_ => _.fieldname === image.id)[0].filename
+                }
+            } else {
+                return image
             }
-        } else {
-            return image
-        }
-    })
+        })
+    }
 
     const pages = oldContent.data.pages.map(_ => {
         if (_.slug === fields.slug) {
