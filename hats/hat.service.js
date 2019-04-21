@@ -1,13 +1,14 @@
 const db = require('../_helpers/db')
 const fs = require('fs')
 const mongoose = require('mongoose')
+const { deleteFileHandler } = require('../_helpers/fileUpload-handler')
 const Hat = db.Hat
 
 const add = async (files, fields) => {
     let hat = new Hat()
 
     hat.images = files.map((image, _) => ({
-        path: image.filename,
+        path: image.key,
         description: `Image number ${_}`
     }))
 
@@ -34,7 +35,7 @@ const update = async (id, files, fields) => {
     let hat = await getById(id)
 
     let newImages = files.map((image, _) => ({
-        path: image.filename,
+        path: image.key,
         description: `Image number ${_}`
     }))
 
@@ -45,7 +46,7 @@ const update = async (id, files, fields) => {
     const imagesToDelete = hat.images.filter(image => fields.deletedImages.split(',').findIndex(id => id == image._id) >= 0)
 
     imagesToDelete.forEach(image => 
-        fs.unlink(`uploads/${image.path}`, () => {})
+        deleteFileHandler(image.path)
     )
 
     const hatProps = { ...fields, images }
@@ -62,6 +63,12 @@ const update = async (id, files, fields) => {
 }
 
 const _delete = async id => {
+    let hat = await getById(id)
+    
+    hat.images.forEach(image => 
+        deleteFileHandler(image.path)
+    )
+    
     await Hat.findByIdAndRemove(id)
 }
 
