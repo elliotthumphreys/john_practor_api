@@ -24,8 +24,17 @@ const update = (request, response, next) => {
         .catch(error => next(error))
 }
 
+const _delete = (request, response, next) => {
+    service
+        ._delete(request.params.id)
+        .then(() => response.json({}))
+        .catch(error => next(error))
+}
+
+
 router.get('/', getAll)
 router.post('/add', add)
 router.put('/', helper.anyFileUploadHandler, update)
+router.delete('/', _delete)
 
 module.exports = router 

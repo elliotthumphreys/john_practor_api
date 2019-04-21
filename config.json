@@ -1,4 +1,0 @@
-﻿{
-    "connectionString": "mongodb://localhost/john-practor-api",
-    "secret": "1234"
-}

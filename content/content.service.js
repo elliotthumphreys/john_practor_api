@@ -1,5 +1,6 @@
 const db = require('../_helpers/db')
 const fs = require('fs')
+const { deleteFileHandler } = require('../_helpers/fileUpload-handler')
 const Content = db.Content
 
 const getAll = async () => {
@@ -34,6 +35,7 @@ const add = async () => {
                 "name": "About",
                 "slug": "about",
                 "data": {
+                    "title": ["", "text"],
                     "body": ["", "textarea"]
                 }
             },
@@ -41,6 +43,7 @@ const add = async () => {
                 "name": "Contact",
                 "slug": "contact",
                 "data": {
+                    "title": ["", "text"],
                     "body": ["", "textarea"]
                 }
             },
@@ -48,6 +51,7 @@ const add = async () => {
                 "name": "Terms",
                 "slug": "terms",
                 "data": {
+                    "title": ["", "text"],
                     "body": ["", "textarea"]
                 }
             }
@@ -74,7 +78,7 @@ const update = async (files, fields) => {
         files.forEach(file => {
             replacedImages = [...replacedImages, ...page.data.images.filter(image => {
                 if (image.id === file.fieldname) {
-                    fs.unlink(`uploads/${image.path}`, () => { })
+                    deleteFileHandler(image.path)
                     return true
                 } else {
                     return false
@@ -86,7 +90,7 @@ const update = async (files, fields) => {
             if (replacedImages.map(_ => _.id).includes(image.id)) {
                 return {
                     id: image.id,
-                    path: files.filter(_ => _.fieldname === image.id)[0].filename
+                    path: files.filter(_ => _.fieldname === image.id)[0].key
                 }
             } else {
                 return image
@@ -112,8 +116,17 @@ const update = async (files, fields) => {
     return oldContent
 }
 
+const _delete = async () => {
+    const content = (await getAll())[0]
+
+    //delete old images
+    
+    await content.remove()
+}
+
 module.exports = {
     getAll,
     add,
-    update
+    update,
+    _delete
 }
