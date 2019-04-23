@@ -1,12 +1,11 @@
 const express = require('express')
 const router = express.Router()
 const service = require('./hat.service.js')
-const handler = require('../_helpers/fileUpload-handler')
 
 const add = (request, response, next) => {
     service
-        .add(request.files, request.body)
-        .then(() => response.json({message: 'success'}))
+        .add(request.body)
+        .then(_ => response.json(_))
         .catch(error => next(error))
 }
 
@@ -26,8 +25,8 @@ const getAll = (request, response, next) => {
 
 const update = (request, response, next) => {
     service
-        .update(request.params.id, request.files, request.body)
-        .then(hat => response.json({hat, message: 'success'}))
+        .update(request.params.id, request.body)
+        .then(_ => response.json(_))
         .catch(error => next(error))
 }
 
@@ -38,10 +37,10 @@ const _delete = (request, response, next) => {
         .catch(error => next(error))
 }
 
-router.post('/add', handler.fileUploadHandler, add)
+router.post('/', add)
 router.get('/', getAll)
 router.get('/:id', getById)
-router.put('/:id', handler.fileUploadHandler, update)
+router.put('/:id', update)
 router.delete('/:id', _delete)
 
 module.exports = router 

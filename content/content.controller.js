@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const service = require('./content.service.js')
-const helper = require('../_helpers/fileUpload-handler')
 
 const getAll = (request, response, next) => {
     service
@@ -19,8 +18,8 @@ const add = (request, response, next) => {
 
 const update = (request, response, next) => {
     service
-        .update(request.files, request.body)
-        .then(content => response.json({content, message: 'success'}))
+        .update(request.body)
+        .then(_ => response.json(_))
         .catch(error => next(error))
 }
 
@@ -33,8 +32,8 @@ const _delete = (request, response, next) => {
 
 
 router.get('/', getAll)
-router.post('/add', add)
-router.put('/', helper.anyFileUploadHandler, update)
+router.post('/', add)
+router.put('/', update)
 router.delete('/', _delete)
 
 module.exports = router 

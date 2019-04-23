@@ -8,12 +8,26 @@ function jwt() {
     const secret = process.env.SECRET || config.secret;
     return expressJwt({ secret, isRevoked }).unless({
         path: [
-            '/users/authenticate',
-            /\/images\//i,
-            '/hats/:id',
-            '/content',
-            '/hats',
-            '/users/register'
+            {
+                url: '/content',
+                methods: ['GET']
+            },
+            {
+                url: '/hats',
+                methods: ['GET']
+            },
+            {
+                url: '/hats/:id',
+                methods: ['GET']
+            },
+            {
+                url: '/users/register',
+                methods: ['POST']
+            },
+            {
+                url: '/users/authenticate',
+                methods: ['POST']
+            }
         ]
     });
 }

@@ -1,4 +1,5 @@
 ﻿{
-    "connectionString": "mongodb://localhost/john-practor-api",
-    "secret": "1234"
+    "connectionString": "mongodb+srv://api:NTauFXgs8ViCNkPD@cluster0-xpqwo.mongodb.net/test?retryWrites=true",
+    "secret": "92f5b29e-3e2f-4775-8429-e3f3a4559e4b"
 }
+ 
