@@ -1,17 +1,14 @@
-const multer = require('multer')
-const multerS3 = require('multer-s3');
 const aws = require('aws-sdk');
 const uuidv4 = require('uuid/v4')
 
-aws.config.update({
-    secretAccessKey: process.env.SECRET_ACCESS_KEY,
-    accessKeyId: process.env.ACCESS_KEY_ID,
-    region: 'eu-west-2'
-});
-
 const BUCKET = 'john-proctor-millinery-images'
 
-const s3 = new aws.S3();
+const S3 = new aws.S3({
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    region: 'eu-west-2',
+    signatureVersion: 'v4'
+});
 
 const getExtension = mimetype => {
     return [
@@ -24,31 +21,33 @@ const getExtension = mimetype => {
     ].find(_ => _[0] === mimetype)[1]
 }
 
-const storage = multer.diskStorage({
-    destination: (request, file, callback) => {
-        callback(null, './uploads/')
-    },
-    filename: (request, file, callback) => {
-        callback(null, `${uuidv4()}.${getExtension(file.mimetype)}`)
-    }
-})
+const generatePresignedUrl = async mimetype => {
+    const signedUrlExpireSeconds = 60 * 60;
 
-const storageS3 = multerS3({
-    s3: s3,
-    bucket: BUCKET,
-    acl: 'public-read',
-    key: function (request, file, callback) {
-        callback(null, `${uuidv4()}.${getExtension(file.mimetype)}`)
-    }
-})
+    const key = `${uuidv4()}.${getExtension(mimetype)}`
 
-const upload = multer({ storage: storageS3 })
+    const params = { 
+        Bucket: BUCKET, 
+        Key: key, 
+        Expires: signedUrlExpireSeconds, 
+        ACL: 'public-read', 
+        ContentType: mimetype
+    };
 
-const fileUploadHandler = upload.array('images', 10)
-const anyFileUploadHandler = upload.any()
+    return new Promise(resolve => {
+        S3.getSignedUrl('putObject', params, (error, url) => {
+            if (error) {
+                resolve({ success: false, message: 'Pre-Signed URL error', url})
+            } else {
+                resolve({ success: true, message: 'AWS SDK S3 Pre-signed urls generated successfully.', url, key })
+            }
+        })
+    })
+}
+
 const deleteFile = async key => {
     if (key !== null && key !== '') {
-        s3.deleteObject({
+        S3.deleteObject({
             Bucket: BUCKET,
             Key: key
         }, () => {})
@@ -56,7 +55,6 @@ const deleteFile = async key => {
 }
 
 module.exports = {
-    fileUploadHandler,
-    anyFileUploadHandler,
+    generatePresignedUrl,
     deleteFileHandler: deleteFile
 }

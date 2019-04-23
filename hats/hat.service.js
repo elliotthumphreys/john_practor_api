@@ -1,22 +1,47 @@
 const db = require('../_helpers/db')
-const fs = require('fs')
 const mongoose = require('mongoose')
-const { deleteFileHandler } = require('../_helpers/fileUpload-handler')
+const { generatePresignedUrl, deleteFileHandler } = require('../_helpers/fileUpload-handler')
 const Hat = db.Hat
 
-const add = async (files, fields) => {
+const add = async data => {
     let hat = new Hat()
 
-    hat.images = files.map((image, _) => ({
-        path: image.key,
-        description: `Image number ${_}`
-    }))
+    let presignedUrls = {
+        images: []
+    }
 
-    for (fieldName in fields) {
-        hat[fieldName] = fields[fieldName]
+    for (let index = 0; index < data.images.length; index++) {
+        const mimeType = data.images[index]
+        const { success, message, url, key } = await generatePresignedUrl(mimeType)
+
+        if (!success) {
+            throw `Error: ${message}`
+        }
+
+        presignedUrls.images.push({
+            url,
+            mimeType
+        })
+
+        hat.images.push({
+            path: key,
+            description: `Image number ${index}`
+        })
+    }
+
+    for (key in data) {
+        if (key !== 'images') {
+            hat[key] = data[key]
+        }
     }
 
     await hat.save()
+
+    return {
+        success: true,
+        presignedUrls,
+        hat
+    }
 }
 
 const getById = async id => {
@@ -31,44 +56,65 @@ const getAll = async () => {
     return await Hat.find().sort('-dateCreated')
 }
 
-const update = async (id, files, fields) => {
+const update = async (id, data) => {
     let hat = await getById(id)
 
-    let newImages = files.map((image, _) => ({
-        path: image.key,
-        description: `Image number ${_}`
-    }))
-
-    let oldImages = hat.images.filter(image => fields.deletedImages.split(',').findIndex(id => id == image._id) < 0)
-
-    const images = [...newImages, ...oldImages]
-
-    const imagesToDelete = hat.images.filter(image => fields.deletedImages.split(',').findIndex(id => id == image._id) >= 0)
-
-    imagesToDelete.forEach(image => 
-        deleteFileHandler(image.path)
-    )
-
-    const hatProps = { ...fields, images }
-
-    if (hat) {
-        Object.assign(hat, hatProps);
-
-        var result = await hat.save()
-
-        return result._doc
+    if (!hat) {
+        throw `Id ${id} was not found`
     }
 
-    throw `Id ${id} was not found`
+    let presignedUrls = {
+        images: []
+    }
+
+    let newImages = []
+
+    for (let index = 0; index < data.images.length; index++) {
+        const mimeType = data.images[index]
+        const { success, message, url, key } = await generatePresignedUrl(mimeType)
+
+        if (!success) {
+            throw `Error: ${message}`
+        }
+
+        presignedUrls.images.push({
+            url,
+            mimeType
+        })
+
+        newImages.push({
+            path: key,
+            description: `Image number ${index}`
+        })
+    }
+
+    let images = hat.images.filter(image => {
+        const found = data.deletedImages.find(deletedImage => image._id.toString() === deletedImage)
+
+        if (found) {
+            deleteFileHandler(image.path)
+            return false;
+        }
+
+        return true;
+    })
+
+    images = [...images, ...newImages]
+
+    Object.assign(hat, { ...data, images });
+
+    await hat.save()
+
+    return { success: true, hat, presignedUrls }
 }
 
 const _delete = async id => {
     let hat = await getById(id)
-    
-    hat.images.forEach(image => 
+
+    hat.images.forEach(image =>
         deleteFileHandler(image.path)
     )
-    
+
     await Hat.findByIdAndRemove(id)
 }
 

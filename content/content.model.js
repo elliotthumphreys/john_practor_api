@@ -4,7 +4,7 @@ const schema = new mongoose.Schema({
     data: { type: Object, unique: false, required: false }
 })
 
-const index = { data: 'text' };
+const index = {};
 schema.index(index);
 
 schema.set('toJSON', { virtuals: true })

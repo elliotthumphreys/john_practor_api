@@ -15,9 +15,9 @@ app.use(jwt())
 
 // api routes
 app.use('/users', require('./users/users.controller'))
+app.use('/images', require('./images/image.controller'))
 app.use('/hats', require('./hats/hats.controller'))
 app.use('/content', require('./content/content.controller'))
-app.use('/images', express.static('./uploads/'))
 
 // global error handler
 app.use(errorHandler)

@@ -1,6 +1,5 @@
 const db = require('../_helpers/db')
-const fs = require('fs')
-const { deleteFileHandler } = require('../_helpers/fileUpload-handler')
+const { generatePresignedUrl, deleteFileHandler } = require('../_helpers/fileUpload-handler')
 const Content = db.Content
 
 const getAll = async () => {
@@ -62,65 +61,62 @@ const add = async () => {
     await content.save()
 }
 
-const update = async (files, fields) => {
-    const oldContent = (await getAll())[0]
+const update = async ({ page, navigation }) => {
+    const content = (await getAll())[0]
 
-    let page = oldContent.data.pages.find(_ => _.slug === fields.slug)
+    let response = {
+        success: true,
+        presignedUrls: []
+    }
 
-    for (let key in fields) {
-        if (key !== 'slug' && key !== 'navigation') {
-            page.data[key][0] = fields[key]
+    if (page.data.hasOwnProperty('images')) {
+        for (let index = 0; index < page.data.images.length; index++) {
+            const { id, path, mimeType } = page.data.images[index]
+            if (mimeType) {
+                const { success, url, key } = await generatePresignedUrl(mimeType)
+
+                if (success) {
+                    deleteFileHandler(path)
+                    page.data.images[index] = {
+                        id,
+                        path: key
+                    }
+                    response.presignedUrls.push({ id, url })
+                } else {
+                    response.success = false
+                }
+            }
         }
     }
 
-    if(page.data.hasOwnProperty('images')){
-        let replacedImages = []
-        files.forEach(file => {
-            replacedImages = [...replacedImages, ...page.data.images.filter(image => {
-                if (image.id === file.fieldname) {
-                    deleteFileHandler(image.path)
-                    return true
-                } else {
-                    return false
-                }
-            })]
-        })
-
-        page.data.images = page.data.images.map(image => {
-            if (replacedImages.map(_ => _.id).includes(image.id)) {
-                return {
-                    id: image.id,
-                    path: files.filter(_ => _.fieldname === image.id)[0].key
-                }
-            } else {
-                return image
-            }
-        })
-    }
-
-    const pages = oldContent.data.pages.map(_ => {
-        if (_.slug === fields.slug) {
+    const pages = content.data.pages.map(_ => {
+        if (_.slug === page.slug) {
             return page
         }
         return _
     })
 
-    const contentProps = { data: { pages, navigation: [...JSON.parse(fields['navigation'])] } }
+    const contentProps = { data: { pages, navigation } }
 
-    Object.assign(oldContent, contentProps)
+    Object.assign(content, contentProps)
 
-    oldContent.markModified('data')
+    content.markModified('data')
 
-    await oldContent.save()
+    if (response.success) {
+        await content.save()
+    }
 
-    return oldContent
+    return {
+        content,
+        ...response
+    }
 }
 
 const _delete = async () => {
     const content = (await getAll())[0]
 
     //delete old images
-    
+
     await content.remove()
 }
 
