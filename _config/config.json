@@ -1,0 +1,4 @@
+{
+    "connectionString": "cluster0-xpqwo.mongodb.net",
+    "secret": "this-is-a-test-secret"
+}
