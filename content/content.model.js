@@ -9,4 +9,4 @@ schema.index(index);
 
 schema.set('toJSON', { virtuals: true })
 
-module.exports = mongoose.model('Content', schema)
+module.exports = db.model('Content', schema)

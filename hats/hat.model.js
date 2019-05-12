@@ -29,4 +29,4 @@ schema.index(index);
 
 schema.set('toJSON', { virtuals: true })
 
-module.exports = mongoose.model('Hat', schema)
+module.exports = db.model('Hat', schema)

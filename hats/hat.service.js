@@ -1,7 +1,6 @@
-const db = require('../_helpers/db')
 const mongoose = require('mongoose')
 const { generatePresignedUrl, deleteFileHandler } = require('../_helpers/fileUpload-handler')
-const Hat = db.Hat
+const Hat = require('./hat.model')
 
 const add = async data => {
     let hat = new Hat()

@@ -1,6 +1,5 @@
-const db = require('../_helpers/db')
 const { generatePresignedUrl, deleteFileHandler } = require('../_helpers/fileUpload-handler')
-const Content = db.Content
+const Content = require('./content.model')
 
 const getAll = async () => {
     return await Content.find()
