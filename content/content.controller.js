@@ -25,7 +25,7 @@ const update = (request, response, next) => {
 
 const _delete = (request, response, next) => {
     service
-        ._delete(request.params.id)
+        .delete(request.params.id)
         .then(() => response.json({}))
         .catch(error => next(error))
 }
