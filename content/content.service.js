@@ -32,7 +32,7 @@ const update = async ({ id, data }) => {
 
     if (data.hasOwnProperty('images')) {
         let images = []
-        data.images.forEach(image => {
+        for(const image of images){
             const { id, path, mimeType, delete : deleteTag } = image
             if (mimeType) {
                 const { success, url, key } = await generatePresignedUrl(mimeType)
@@ -50,7 +50,7 @@ const update = async ({ id, data }) => {
             }else if(deleteTag){
                 deleteFileHandler(path)
             }
-        })
+        }
         data.images = images
     }
 
