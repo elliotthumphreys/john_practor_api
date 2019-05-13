@@ -1,12 +1,12 @@
 const mongoose = require('mongoose')
 
 const schema = new mongoose.Schema({
-    data: { type: Object, unique: false, required: false }
+    name: { type: String, unique: false, required: false },
+    slug: { type: String, unique: false, required: false },
+    type: { type: String, unique: false, required: true },
+    data: { type: Object, unique: false, required: true }
 })
-
-const index = {};
-schema.index(index);
 
 schema.set('toJSON', { virtuals: true })
 
-module.exports = db.model('Content', schema)
+module.exports = mongoose.model('Content', schema)

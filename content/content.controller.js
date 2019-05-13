@@ -11,7 +11,7 @@ const getAll = (request, response, next) => {
 
 const add = (request, response, next) => {
     service
-        .add()
+        .add(request.body)
         .then(() => response.json({message: 'success'}))
         .catch(error => next(error))
 }

@@ -1,11 +1,20 @@
-const expressJwt = require('express-jwt');
-const config = require('../_config/config.json');
-const userService = require('../users/user.service');
+const expressJwt = require('express-jwt')
+const config = require('../_config/config.json')
+const userService = require('../users/user.service')
 
-module.exports = jwt;
+const isRevoked = async (req, payload, done) => {
+    const user = await userService.getById(payload.sub)
 
-function jwt() {
-    const secret = process.env.SECRET || config.secret;
+    // revoke token if user no longer exists
+    if (!user) {
+        return done(null, true)
+    }
+
+    done()
+}
+
+const jwt = () => {
+    const secret = process.env.SECRET || config.secret
     return expressJwt({ secret, isRevoked }).unless({
         path: [
             {
@@ -29,16 +38,7 @@ function jwt() {
                 methods: ['POST']
             }
         ]
-    });
+    })
 }
 
-async function isRevoked(req, payload, done) {
-    const user = await userService.getById(payload.sub);
-
-    // revoke token if user no longer exists
-    if (!user) {
-        return done(null, true);
-    }
-
-    done();
-};
+module.exports = jwt

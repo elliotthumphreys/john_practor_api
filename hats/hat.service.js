@@ -92,15 +92,15 @@ const update = async (id, data) => {
 
         if (found) {
             deleteFileHandler(image.path)
-            return false;
+            return false
         }
 
-        return true;
+        return true
     })
 
     images = [...images, ...newImages]
 
-    Object.assign(hat, { ...data, images });
+    Object.assign(hat, { ...data, images })
 
     await hat.save()
 

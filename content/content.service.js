@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const { generatePresignedUrl, deleteFileHandler } = require('../_helpers/fileUpload-handler')
 const Content = require('./content.model')
 
@@ -5,99 +6,55 @@ const getAll = async () => {
     return await Content.find()
 }
 
-const add = async () => {
+const get = async id => {
+    if (mongoose.Types.ObjectId.isValid(id)) {
+        return await Content.findById(id)
+    }
+
+    throw `Id ${id} is incorrect`
+}
+
+const add = async contentJson => {
     let content = new Content()
 
-    content.data = {
-        "pages": [
-            {
-                "name": "Home",
-                "slug": "home",
-                "data": {
-                    "header-top": ["", "text"],
-                    "header-bottom": ["", "text"],
-                    "images": [
-                        {
-                            "id": "coverImage",
-                            "path": ""
-                        }
-                    ],
-                }
-            },
-            {
-                "name": "Collection",
-                "slug": "collection",
-                "data": {}
-            },
-            {
-                "name": "About",
-                "slug": "about",
-                "data": {
-                    "title": ["", "text"],
-                    "body": ["", "textarea"]
-                }
-            },
-            {
-                "name": "Contact",
-                "slug": "contact",
-                "data": {
-                    "title": ["", "text"],
-                    "body": ["", "textarea"]
-                }
-            },
-            {
-                "name": "Terms",
-                "slug": "terms",
-                "data": {
-                    "title": ["", "text"],
-                    "body": ["", "textarea"]
-                }
-            }
-        ],
-        "navigation": []
-    }
+    Object.assign(content, contentJson)
 
     await content.save()
 }
 
-const update = async ({ page, navigation }) => {
-    const content = (await getAll())[0]
+const update = async ({ id, data }) => {
+    const content = await get(id)
 
     let response = {
         success: true,
         presignedUrls: []
     }
 
-    if (page.data.hasOwnProperty('images')) {
-        for (let index = 0; index < page.data.images.length; index++) {
-            const { id, path, mimeType } = page.data.images[index]
+    if (data.hasOwnProperty('images')) {
+        let images = []
+        data.images.forEach(image => {
+            const { id, path, mimeType, delete : deleteTag } = image
             if (mimeType) {
                 const { success, url, key } = await generatePresignedUrl(mimeType)
 
                 if (success) {
                     deleteFileHandler(path)
-                    page.data.images[index] = {
+                    images.push({
                         id,
                         path: key
-                    }
+                    })
                     response.presignedUrls.push({ id, url })
                 } else {
                     response.success = false
                 }
+            }else if(deleteTag){
+                deleteFileHandler(path)
             }
-        }
+        })
+        data.images = images
     }
 
-    const pages = content.data.pages.map(_ => {
-        if (_.slug === page.slug) {
-            return page
-        }
-        return _
-    })
-
-    const contentProps = { data: { pages, navigation } }
-
-    Object.assign(content, contentProps)
+    Object.assign(content, { data })
 
     content.markModified('data')
 
@@ -111,17 +68,22 @@ const update = async ({ page, navigation }) => {
     }
 }
 
-const _delete = async () => {
-    const content = (await getAll())[0]
+const _delete = async id => {
+    let content = await get(id)
 
-    //delete old images
+    if(content.data.hasOwnProperty('images')){
+        content.data.images.forEach(image =>
+            deleteFileHandler(image.path)
+        )
+    }
 
-    await content.remove()
+    await content.findByIdAndRemove(id)
 }
 
 module.exports = {
+    get,
     getAll,
     add,
     update,
-    _delete
+    delete: _delete
 }

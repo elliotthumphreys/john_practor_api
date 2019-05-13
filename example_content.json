@@ -1,0 +1,34 @@
+[
+    {
+        "id" : "mongoose_id_blah", required 
+        "name": "Home",
+        "slug": "home",
+        "type": "page", required 
+        "data": {
+            "header-top": [
+                "",
+                "text"
+            ],
+            "header-bottom": [
+                "",
+                "text"
+            ],
+            "images": [
+                {
+                    "id": "coverImage",
+                    "path": ""
+                }
+            ]
+        } required 
+    },
+    {
+        "id" : "mongoose_id_blah",
+        "type": "navigation",
+        "data": []
+    },
+    {
+        "id" : "mongoose_id_blah",
+        "type": "socialLinks",
+        "data": []
+    }
+]
