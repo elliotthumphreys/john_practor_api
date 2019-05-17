@@ -1,4 +1,5 @@
 {
-    "connectionString": "cluster0-xpqwo.mongodb.net",
+    "connectionString": "mongodb://localhost:27017/john-practor-api",
     "secret": "this-is-a-test-secret"
 }
+

@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
     context.callbackWaitsForEmptyEventLoop = false;
 
     if (connection == null) {
-        connection = await mongoose.createConnection(uri, {
+        connection = await mongoose.connect(uri, {
             bufferCommands: false,
             bufferMaxEntries: 0,
             useNewUrlParser: true
