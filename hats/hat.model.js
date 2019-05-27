@@ -1,30 +1,25 @@
 const mongoose = require('mongoose')
 
 const schema = new mongoose.Schema({
-    title: { type: String, unique: false, required: false },
     description: { type: String, unique: false, required: true },
-    price: { type: Number, unique: false, required: true },
     dateCreated: { type: Date, default: Date.now() },
     category: { type: String, unique: false, required: true },
     credit: { type: String, unique: false, required: false },
+    coverImage: { type: String, unique: false, required: true },
     images: [
         {
-            path: { type: String, unique: false, required: true },
-            description: { type: String, unique: false, required: true }
+            path: { type: String, unique: false, required: true }
         }
     ]
 })
 
-const index = { 
-    description: 'text',
-    title: 'text',
-    price: 'text',
+const index = {
     category: 'text',
     credit: 'text',
     dateCreated: 'text',
-    'images.path': 1,
-    'images.description': 1
- };
+    'images.path': 1
+}
+
 schema.index(index);
 
 schema.set('toJSON', { virtuals: true })

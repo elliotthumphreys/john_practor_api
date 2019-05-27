@@ -22,7 +22,7 @@ const add = async contentJson => {
     await content.save()
 }
 
-const update = async ({ id, data }) => {
+const update = async (id, { data }) => {
     const content = await get(id)
 
     let response = {
@@ -30,28 +30,25 @@ const update = async ({ id, data }) => {
         presignedUrls: []
     }
 
-    if (data.hasOwnProperty('images')) {
-        let images = []
-        for(const image of images){
-            const { id, path, mimeType, delete : deleteTag } = image
-            if (mimeType) {
-                const { success, url, key } = await generatePresignedUrl(mimeType)
+    for (let index = 0; index < data.length; index++) {
+        const { mimeType, value, name, type } = data[index]
+        if (type !== 'image') continue
+        if (mimeType) {
+            deleteFileHandler(value)
 
-                if (success) {
-                    deleteFileHandler(path)
-                    images.push({
-                        id,
-                        path: key
-                    })
-                    response.presignedUrls.push({ id, url })
-                } else {
-                    response.success = false
+            const { success, url, key } = await generatePresignedUrl(mimeType)
+            if (success) {
+                data[index] = {
+                    name,
+                    value: key,
+                    type
                 }
-            }else if(deleteTag){
-                deleteFileHandler(path)
+            } else {
+                throw new Error('Content Update: Failed to generate presigned url')
             }
+
+            response.presignedUrls.push({ name, url })
         }
-        data.images = images
     }
 
     Object.assign(content, { data })
@@ -71,7 +68,7 @@ const update = async ({ id, data }) => {
 const _delete = async id => {
     let content = await get(id)
 
-    if(content.data.hasOwnProperty('images')){
+    if (content.data.hasOwnProperty('images')) {
         content.data.images.forEach(image =>
             deleteFileHandler(image.path)
         )

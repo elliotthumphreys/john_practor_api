@@ -18,7 +18,7 @@ const add = (request, response, next) => {
 
 const update = (request, response, next) => {
     service
-        .update(request.body)
+        .update(request.params.id, request.body)
         .then(_ => response.json(_))
         .catch(error => next(error))
 }
@@ -33,7 +33,7 @@ const _delete = (request, response, next) => {
 
 router.get('/', getAll)
 router.post('/', add)
-router.put('/', update)
-router.delete('/', _delete)
+router.put('/:id', update)
+router.delete('/:id', _delete)
 
 module.exports = router 

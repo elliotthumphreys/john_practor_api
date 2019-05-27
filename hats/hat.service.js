@@ -9,6 +9,15 @@ const add = async data => {
         images: []
     }
 
+    const { success, message, url, key: coverImageName } = await generatePresignedUrl(data.coverImage)
+
+    if (!success) {
+        throw `Error: ${message}`
+    }
+
+    const coverPresigedUrl = url
+    hat.coverImage = coverImageName
+
     for (let index = 0; index < data.images.length; index++) {
         const mimeType = data.images[index]
         const { success, message, url, key } = await generatePresignedUrl(mimeType)
@@ -23,13 +32,12 @@ const add = async data => {
         })
 
         hat.images.push({
-            path: key,
-            description: `Image number ${index}`
+            path: key
         })
     }
 
     for (key in data) {
-        if (key !== 'images') {
+        if (key !== 'images' && key !== 'coverImage') {
             hat[key] = data[key]
         }
     }
@@ -39,6 +47,7 @@ const add = async data => {
     return {
         success: true,
         presignedUrls,
+        coverPresigedUrl,
         hat
     }
 }
@@ -66,6 +75,21 @@ const update = async (id, data) => {
         images: []
     }
 
+    let coverPresigedUrl, coverImageName
+
+    if (data.coverImage !== '') {
+        const { success, message, url, key  } = await generatePresignedUrl(data.coverImage)
+
+        if (!success) {
+            throw `Error: ${message}`
+        }
+
+        coverPresigedUrl = url
+        coverImageName = key
+
+        deleteFileHandler(hat.coverImage)
+    }
+
     let newImages = []
 
     for (let index = 0; index < data.images.length; index++) {
@@ -82,8 +106,7 @@ const update = async (id, data) => {
         })
 
         newImages.push({
-            path: key,
-            description: `Image number ${index}`
+            path: key
         })
     }
 
@@ -100,11 +123,11 @@ const update = async (id, data) => {
 
     images = [...images, ...newImages]
 
-    Object.assign(hat, { ...data, images })
+    Object.assign(hat, { ...data, images, coverImage: coverImageName || hat.coverImage })
 
     await hat.save()
 
-    return { success: true, hat, presignedUrls }
+    return { success: true, hat, presignedUrls, coverPresigedUrl }
 }
 
 const _delete = async id => {
@@ -113,6 +136,8 @@ const _delete = async id => {
     hat.images.forEach(image =>
         deleteFileHandler(image.path)
     )
+
+    deleteFileHandler(hat.coverImage)
 
     await Hat.findByIdAndRemove(id)
 }
