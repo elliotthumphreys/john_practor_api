@@ -4,7 +4,6 @@ const config = require('./_config/config.json')
 const app = require('./app.js')
 const uri = process.env.MONGODB_URI || config.connectionString
 
-let server = null
 let connection = null
 
 exports.handler = async (event, context) => {
@@ -18,7 +17,7 @@ exports.handler = async (event, context) => {
         });
     }
     
-    server = awsServerlessExpress.createServer(app)
+    const server = awsServerlessExpress.createServer(app)
 
     return awsServerlessExpress.proxy(server, event, context)
 }
