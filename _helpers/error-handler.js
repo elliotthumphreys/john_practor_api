@@ -1,4 +1,6 @@
 const errorHandler = (err, req, res, next) => {
+    console.log(`Error caught: ${err.message} `, err)
+
     if (typeof (err) === 'string') {
         // custom application error
         return res.status(400).json({ message: err });
