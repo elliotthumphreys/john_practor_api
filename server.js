@@ -3,10 +3,8 @@ const config = require('./_config/config.json')
 const app = require('./app.js')
 const uri = process.env.MONGODB_URI || config.connectionString
 
-let connection = null
-
 const startServer = async () => {
-    connection = await mongoose.connect(uri, {
+    await mongoose.connect(uri, {
         bufferCommands: false,
         bufferMaxEntries: 0,
         useNewUrlParser: true

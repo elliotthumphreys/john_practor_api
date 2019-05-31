@@ -20,7 +20,6 @@ function authenticateToken(req, res, next) {
 }
 
 function authenticate(req, res, next) {
-    console.log('Controller authenticate hit')
     userService.authenticate(req.body)
         .then(user => user ? res.json(user) : res.status(400).json({ message: 'Username or password is incorrect' }))
         .catch(err => next(err));

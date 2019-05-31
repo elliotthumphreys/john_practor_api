@@ -7,9 +7,7 @@ const User = require('./user.model')
 const secret = process.env.SECRET || config.secret
 
 const authenticate = async ({ username, password }) => {
-    console.log(`Serivce authenticate: ${username}, ${password}`)
     const user = await User.findOne({ username })
-    console.log('Service authenticate: ', user)
     if (user && bcrypt.compareSync(password, user.hash)) {
         const { hash, ...userWithoutHash } = user.toObject()
         const token = jwt.sign({ sub: user.id }, secret)

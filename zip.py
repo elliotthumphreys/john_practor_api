@@ -3,7 +3,7 @@ import os
 import sys
 
 def useFile(base, file):
-    nozipfiles = ['.git', 'server.js', 'package.json', 'package-lock.json', '.vscode', 'john-proctor-api.zip', 'zip.py']
+    nozipfiles = ['.git', 'john-proctor-api.zip', 'zip.py']
     for nozipfile in nozipfiles:
         if nozipfile in file:
                 return False
