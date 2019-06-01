@@ -17,13 +17,18 @@ const startServer = async () => {
     })
 }
 
-const closeMongoConnection = () => {
+const exitHandler = () => {
     const previousReadyState = mongoose.connection.readyState
     mongoose.connection.close()
     console.info(`Closing mongodb connection, previous readyState: ${previousReadyState}, readyState: ${mongoose.connection.readyState}`) 
 }
 
-process.on('SIGTERM', closeMongoConnection);
-process.on('SIGINT', closeMongoConnection);
+process.stdin.resume()
+
+process.on('exit', exitHandler)
+process.on('SIGINT', exitHandler)
+process.on('SIGUSR1', exitHandler)
+process.on('SIGUSR2', exitHandler)
+process.on('uncaughtException', exitHandler)
 
 startServer()
