@@ -17,4 +17,13 @@ const startServer = async () => {
     })
 }
 
+const closeMongoConnection = () => {
+    const previousReadyState = mongoose.connection.readyState
+    mongoose.connection.close()
+    console.info(`Closing mongodb connection, previous readyState: ${previousReadyState}, readyState: ${mongoose.connection.readyState}`) 
+}
+
+process.on('SIGTERM', closeMongoConnection);
+process.on('SIGINT', closeMongoConnection);
+
 startServer()
