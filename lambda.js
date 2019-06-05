@@ -10,14 +10,6 @@ const exitHandler = () => {
     console.info(`Closing mongodb connection, previous readyState: ${previousReadyState}, readyState: ${mongoose.connection.readyState}`) 
 }
 
-process.stdin.resume()
-
-process.on('exit', exitHandler)
-process.on('SIGINT', exitHandler)
-process.on('SIGUSR1', exitHandler)
-process.on('SIGUSR2', exitHandler)
-process.on('uncaughtException', exitHandler)
-
 exports.handler = async (event, context) => {
     context.callbackWaitsForEmptyEventLoop = false;
 
@@ -27,5 +19,9 @@ exports.handler = async (event, context) => {
         useNewUrlParser: true
     });
 
-    return awsServerlessExpress.proxy(server, event, context, 'PROMISE').promise
+    const proxy = await awsServerlessExpress.proxy(server, event, context, 'PROMISE').promise
+
+    exitHandler()
+
+    return proxy
 }
