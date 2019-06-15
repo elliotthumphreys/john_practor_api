@@ -24,7 +24,7 @@ const getExtension = mimetype => {
 const generatePresignedUrl = async mimetype => {
     const signedUrlExpireSeconds = 60 * 60;
 
-    const key = `${uuidv4()}.${getExtension(mimetype)}`
+    const key = `incoming/${uuidv4()}.${getExtension(mimetype)}`
 
     const params = { 
         Bucket: BUCKET, 
@@ -47,10 +47,13 @@ const generatePresignedUrl = async mimetype => {
 
 const deleteFile = async key => {
     if (key !== null && key !== '') {
-        S3.deleteObject({
-            Bucket: BUCKET,
-            Key: key
-        }, () => {})
+        const folders = ['300', '400', '600', '1000', '1920']
+        folders.forEach(folder => {
+            S3.deleteObject({
+                Bucket: BUCKET,
+                Key: `${folder}/${key}`
+            }, () => {})
+        })
     }
 }
 
