@@ -24,11 +24,12 @@ const getExtension = mimetype => {
 const generatePresignedUrl = async mimetype => {
     const signedUrlExpireSeconds = 60 * 60;
 
-    const key = `incoming/${uuidv4()}.${getExtension(mimetype)}`
+    const key = `${uuidv4()}.${getExtension(mimetype)}`
+    const fullUrl = `incoming/${key}`
 
     const params = { 
         Bucket: BUCKET, 
-        Key: key, 
+        Key: fullUrl, 
         Expires: signedUrlExpireSeconds, 
         ACL: 'public-read', 
         ContentType: mimetype

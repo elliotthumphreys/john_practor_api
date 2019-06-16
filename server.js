@@ -21,6 +21,7 @@ const exitHandler = () => {
     const previousReadyState = mongoose.connection.readyState
     mongoose.connection.close()
     console.info(`Closing mongodb connection, previous readyState: ${previousReadyState}, readyState: ${mongoose.connection.readyState}`) 
+    process.exit()
 }
 
 process.stdin.resume()
