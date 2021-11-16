@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/ElliottJH/john_practor_api#readme",
   "dependencies": {
-    "aws-sdk": "^2.437.0",
+    "aws-sdk": "^2.814.0",
     "aws-serverless-express": "^3.3.6",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
